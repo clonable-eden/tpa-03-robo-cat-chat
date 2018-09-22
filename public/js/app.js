@@ -56,7 +56,12 @@ const generateRobotThumb = function() {
     });
 };
 
-const renderPost = function(robotThumbUrl, catThumbUrl, catChatPhrase) {
+const generateEmoji = function() {
+  return fetch('https://ranmoji.herokuapp.com/emojis/api/v.1.0/')
+    .then(response => response.json());
+};
+
+const renderPost = function(robotThumbUrl, catThumbUrl, emoji, catChatPhrase) {
   const containerEl = document.querySelector('#container .chats');
 
   // ポストの枠である要素
@@ -71,7 +76,7 @@ const renderPost = function(robotThumbUrl, catThumbUrl, catChatPhrase) {
   catThumbEl.src = catThumbUrl;
 
   const catChatPhraseEl = document.createElement('P');
-  catChatPhraseEl.innerText = generateRandomCatChatPhrase();
+  catChatPhraseEl.innerHTML = `${generateRandomCatChatPhrase()}<span>${emoji}</span>`;
 
   // ポストの子要素を組み合わせる（次々と追加していく）
   postEl.appendChild(robotThumbEl);
@@ -86,15 +91,16 @@ const renderPost = function(robotThumbUrl, catThumbUrl, catChatPhrase) {
 const addPost = async function() {
   Promise.all([
     generateRobotThumb(),
-    generateCatThumb()
+    generateCatThumb(),
+    generateEmoji(),
   ])
   .then(function(resultsArray) {
-    [robotThumb, catThumb] = resultsArray;
+    [robotThumb, catThumb, emoji] = resultsArray;
     //　上の行はこの書き方の略、意味的に同じです：
     // const robotThumb = resultsArray[0];
     // const catThumb = resultsArray[1];
     // 「分割代入」と呼びます。https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
-    renderPost(robotThumb.imageUrl, catThumb[0].url, 'hello');
+    renderPost(robotThumb.imageUrl, catThumb[0].url, emoji.emoji, 'hello');
   });
 };
 
